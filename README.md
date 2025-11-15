@@ -6,7 +6,8 @@ Chile es el mayor productor cobre en el mundo con una participación cercana al 
 Este producto se genera en reactores o celdas electrolíticas, las cuales a diferencia de una celda combustible que genera electricidad, estas utilizan energía eléctrica para promover reacciones catódicas o reductivas para generar los productos de cobre. 
 A nivel general, se componen por un electrolito (solución contiene Cu), sin interferencia de membrana, dos electrodos planos; un ánodo inerte en el cual ocurre reacción hidrólisis de agua y generación de oxígeno. Y, por otro lado, un cátodo el cual “aporta” los electrones para la reducción de ion cúprico a cobre metálico. 
 
-<img width="497" height="391" alt="image" src="https://github.com/user-attachments/assets/e4c15048-2ce0-4156-91dd-5eacdb1a75ef" />
+<img width="497" height="391" alt="image" src="https://github.com/user-attachments/assets/e4c15048-2ce0-4156-91dd-5eacdb1a75ef" />   <img width="503" height="281" alt="image" src="https://github.com/user-attachments/assets/dcd65fb2-56df-470e-b5d7-738951fab524" /> 
+Ejemplo experimental en celda electrolítica. 2.03 A (90 A/m2), potencial celda 4.7 V
 
 Los principales factores que impulsan el consumo o demanda de metales estratégicos como el cobre en los últimos años, involucran el desarrollo social y transición energética, particularmente mediante la manufactura de dispositivos de “energías verdes” o renovables (IEA 2024), se estima que a partir del auge de la energía solar fotovoltaica la demanda de cobre podría aumentar hasta los 6.4 millones de toneladas para el año 2040 (ICA 2022). Bajo este escenario es relevante la optimización de los recursos y recuperación de metales críticos desde fuentes tradicionales o residuos. La industria tradicional para ello aplica principalmente procesos de alto impacto ambiental como los pirometalúrgicos, los cuales pueden incluir incineración, combustión fundición y/o pirólisis (Yken V., et al., 2021). Sin embargo, una alternativa de procesamiento surge con el área hidrometalúrgica aplicando soluciones lixiviantes selectivas y con menor impacto ambiental (Kaya, M., 2016). Estos procesos de disolución de metales, pueden ser complementados con un enfoque estratégico y evaluar la producción de nanomateriales (Vakylabad et al. 2016). Los nano objetos son aquellos que tienen al menos una de sus dimensiones en el rango de la nanoescala, mientras que los materiales nanoestructurados presentan una estructura interna o superficial en la nanoescala (ISO80004/TC, 2023). En el contexto de la síntesis de nanopartículas (NPs), un precursor (como un electrolito) es el compuesto que proporciona los elementos necesarios para formar las NPs, para ello, es posible aplicar diferentes técnicas de síntesis como la electroquímica basados en los principios de una electroobtención tradicional utilizada para la producción industrial de cátodos de cobre. 
 
@@ -168,5 +169,147 @@ Referencias
     Van Yken, J.; Boxall, N.J.; Cheng, K.Y.; Nikoloski, A.N.; Moheimani, N.R.; Kaksonen, A.H. E-Waste Recycling and Resource Recovery: A Review on Technologies, Barriers and Enablers with a Focus on Oceania. Metals 2021, 11, 1313
 
 
+EVALUACIÓN DE CASOS:
+
+Respuesta de voltaje total de celda (considerando sobrepotenciales) en función de las densidades de corriente y evaluación de concentración de electrolito.
+Para Figura y escenario 1
+
+•	Condiciones aplicadas para modelación.
+•	Concentración mínima [mol/m³]: 538
+•	Concentración máxima [mol/m³]: 692
+•	Paso de concentración [mol/m³]: 15
+•	Temperatura fija [K]: 338.15
+•	Densidad de corriente mínima [A/m²]: 0.1
+•	Densidad de corriente máxima [A/m²]: 50
+•	Paso de corriente [A/m²]: 0.0001
+
+Se observa caída de potencial como respuesta en el aumento del voltaje que debe compensar la celda electrolítica para operar a cada densidad de corriente. 
+
+En la Figura 1, a baja densidad de corriente se observa principalmente el efecto cinético-activación por modelo B-V. Hasta 10 A/m2 se observa el aumento de potencial de celda cercano a 0.75 V. Sin embargo, no se observan mayores diferencias debido a la concentración del electrolito soportante. 
+
+Por otro lado, en la región de caída óhmica o aumento de potencial lineal, marca mayor diferencia del voltaje total en función a la concentración del electrolito. El escenario de mayor concentración presenta un menor potencial o “caída” de este, atribuido en parte a una mayor conductividad del electrolito. 
+En Figura 2, se presenta un mismo escenario de condiciones en función a la concentración del electrolito, sin embargo, se aumenta el rango de evaluación de densidad de corriente, logrando identificar una tercera zona de aumento de potencial atribuido al control difusional. Esto ocurre a altas densidades de corriente debido a que la corriente límite es muy alta en función a las concentraciones de cobre en un electrolito tradicional de electroobtención. Así, dependiente de la concentración se identifica que para un electrolito a 538 mol/m3 con una densidad de corriente aplicada en torno a 410 A/m2 se “ingresa” a una etapa de control difusional y refleja un potencial total de celda de 3.7 V.  Por otro lado, para concentraciones mayores a 658 mol/m3, bajo estas condiciones no se ingresa u observa un control difusional. 
+
+Obs: el modelo no presenta restricción hasta corriente límite, por lo cual, el modelo podría estimar en una zona no física. 
+
+<img width="597" height="481" alt="image" src="https://github.com/user-attachments/assets/6615507a-dc97-4ce0-81bb-9c437f8951d2" />
+
+Para Figura y escenario 2:
+•	Condiciones aplicadas para modelación.
+•	Concentración mínima [mol/m³]: 538
+•	Concentración máxima [mol/m³]: 692
+•	Paso de concentración [mol/m³]: 15
+•	Temperatura fija [K]: 338.15
+•	Densidad de corriente mínima [A/m²]: 0.1
+•	Densidad de corriente máxima [A/m²]: 500
+•	Paso de corriente [A/m²]: 0.0001
+
+<img width="708" height="569" alt="image" src="https://github.com/user-attachments/assets/fdf2870c-413d-4ac3-83b8-e451a45f8ec8" />
 
 
+Resultados de evaluación en condición celda electrolítica ajustada 
+Simulación condiciones síntesis nanomaterial: respuesta de voltaje total de celda (considerando sobrepotenciales) en función de las densidades de corriente y evaluación de concentración de electrolito.
+
+•	Concentración mínima [mol/m³]: 78.7
+•	Concentración máxima [mol/m³]: 157.5
+•	Paso de concentración [mol/m³]: 7.88
+•	Temperatura fija [K]: 298.15
+•	Densidad de corriente mínima [A/m²]: 0.1
+•	Densidad de corriente máxima [A/m²]: 50
+•	Paso de corriente [A/m²]: 0.001
+
+En la Figura 3 se observa que el efecto de aumento potencial en celda por efecto de sobre potencial óhmico es el predominante. El efecto cinético toma menor predominancia respecto de la resistencia total óhmica, esto atribuido a la baja conductividad del electrolito. Así podemos observar que la condición a 157 mol/m3, presenta un sobrepotencial entorno a un 42% menos respecto del proceso con precursor diluido a 79mol/m3, representando voltajes de celda total en torno a 1.8 V y 3.1 V, respectivamente. Así también, estos potenciales son mayores respecto de celda electrolítica tradicional, debido a la menor temperatura y concentración en proceso de síntesis electrolítica de cobre. 
+
+<img width="698" height="561" alt="image" src="https://github.com/user-attachments/assets/3a0ff859-5af7-434b-b9bd-4e0af6e6a7c8" />
+
+En una siguiente iteración (Figura 4) bajo las mismas concentraciones y temperatura 298.15 K, aumentando la densidad de corriente hasta 65 A/m2, se observa que 3 condiciones de procesos a concentraciones menores de 94 mol/m3 ingresan a zona de control difusional. Así, a una densidad de corriente de 53 A/m2 y una concentración de Cu en precursor de 79 mol/m3, se ingresa a control difusional y representa un potencial total de celda de 3.25 V. Se ingresa a este régimen a una densidad de corriente hasta un 87% más baja respecto de una condición estándar de electroobtención de cobre (538 mol/m3, 35 g/L y 410 A/m2)
+
+<img width="698" height="561" alt="image" src="https://github.com/user-attachments/assets/b5d83462-e7c9-4f93-963b-c63e6758fa36" />
+
+
+Caso N° 2: Variación de material y propiedades de electrodos 
+
+Para el caso N° 2 se realiza una evaluación en escenario típico de electroobtención, es decir Ánodo de Pb y Cátodo de Inox. 316L. Propiedades de materiales en referencia portal Engineer calculator.
+
+•	rho0_cat = 7.4e-7      # Resistividad Inox 316L a 298K [Ω·m] 
+•	rho0_an = 2.2e-7       # Resistividad Pb sin aleación a 298K [Ω·m] 
+•	alpha_rho_cat = 0.00094  # Coeficiente de temperatura resistividad [1/K] Inox 316L
+•	alpha_rho_an = 0.0040    # Coeficiente de temperatura resistividad [1/K] Pb sin aleación
+
+La resistencia electrónica total (ánodo + cátodo) en el Caso N° 2 aumentaría, respecto del caso N° 1 el cual considera electrodos de un mismo material y tipo Cobre (cátodo madre), por tanto, se esperaría mayor caída óhmica, mayor sobrepotencial total y mayor voltaje de celda requerido
+
+# Mismas condiciones de electrolito respecto de escenario N°1; solo cambio de electrodos de cobre (ambos) por ánodo de plomo sin aleación y cátodo de acero inoxidable 316L.
+
+•	Concentración mínima [mol/m³]: 538
+•	Concentración máxima [mol/m³]: 692
+•	Paso de concentración [mol/m³]: 15
+•	Temperatura fija [K]: 338.15
+•	Densidad de corriente mínima [A/m²]: 0.1
+•	Densidad de corriente máxima [A/m²]: 50
+•	Paso de corriente [A/m²]: 0.001
+
+Simulación caso N° 2:
+
+Se observa en la Figura 5 que la respuesta del voltaje total de la celda no varía de manera significativa respecto del caso N° 1 con electrodos de cobre, esto debido a que la resistividad del electrolito (κ del Cu²⁺ en solución) domina completamente la caída óhmica. El electrolito es bastante más resistivo que los electrodos, por lo cual, al modificar la resistividad de cobre: 1.7×10⁻⁸ Ω·m a plomo / inox: 10⁻⁷ Ω·m, tenemos sólo 1 orden de magnitud. Así también, el espesor de los electrodos es muy pequeño (5 mm), y el área es relativamente grande (0.01 m²).
+Por lo tanto, la resistencia electrónica total sigue siendo muy baja: ~ micro-ohms a mili-ohms → contribución mínima al voltaje, respecto de los sobre potenciales a partir del electrolito, cinética-activación y concentración-difusión.
+
+<img width="611" height="491" alt="image" src="https://github.com/user-attachments/assets/22823af5-525b-47fa-9601-8c4fe579e038" />
+
+=== RESUMEN DE PARÁMETROS CALCULADOS ===
+ C (mol/m³)  κ (S/m)     D (m²/s)  i_L (A/m²)
+      538.0  2.88368 4.046734e-10  420.123215
+      553.0  2.96408 4.046734e-10  431.836688
+      568.0  3.04448 4.046734e-10  443.550160
+      583.0  3.12488 4.046734e-10  455.263633
+      598.0  3.20528 4.046734e-10  466.977105
+      613.0  3.28568 4.046734e-10  478.690578
+      628.0  3.36608 4.046734e-10  490.404050
+      643.0  3.44648 4.046734e-10  502.117523
+      658.0  3.52688 4.046734e-10  513.830996
+      673.0  3.60728 4.046734e-10  525.544468
+      688.0  3.68768 4.046734e-10  537.257941
+      703.0  3.76808 4.046734e-10  548.971413
+
+
+Caso N° 3: Variación de material y propiedades de ánodo
+
+De acuerdo con lo observado en el caso N°2 es que se propuso evaluar el efecto considerando otro material en el electrodo de ánodo. Así, se evaluó un ánodo en material de grafito o carbono, el cual es utilizado en diferentes aplicaciones. Se consideró el mismo escenario de electrolito, diseño de celda, cátodo Inoxidable 316L, solo modificando las propiedades del ánodo por:
+•	rho0_an = 3.0e-3       # Resistividad grafito plano basal sin aleación a 298K [Ω·m]. Ref. Anne Marie Helmenstine, Ph.D. Thoughtco
+•	alpha_rho_an = 0.00303    # Coeficiente de temperatura resistividad [1/K] grafito plano basal (depende de orientación del grafito) 
+
+Condiciones de simulación:
+
+•	Concentración mínima [mol/m³]: 538
+•	Concentración máxima [mol/m³]: 692
+•	Paso de concentración [mol/m³]: 15
+•	Temperatura fija [K]: 338.15
+•	Densidad de corriente mínima [A/m²]: 0.1
+•	Densidad de corriente máxima [A/m²]: 50
+•	Paso de corriente [A/m²]: 0.001
+
+
+En la Figura 6 se observa un aumento y diferencia en el voltaje total de la celda electrolítica para este caso evaluado con un ánodo de grafito. Se alcanzan voltajes de hasta 1.18 V, representando para la condición de 538 mol/m3 un aumento estimado de 10 mV atribuido a un sobrepotencial óhmico entre 9.2-10% mayor respecto escenarios precios. Esto, afectado en particular R_electrónica implicada por el material de grafito y la mayor resistividad respecto de los electrodos de cobre y plomo evaluados en los casos 1 y 2, respectivamente
+
+<img width="645" height="518" alt="image" src="https://github.com/user-attachments/assets/bccb6379-8bcb-4b40-b19d-d79704399d83" />
+
+
+=== RESUMEN DE PARÁMETROS CALCULADOS ===
+ C (mol/m³)  κ (S/m)     D (m²/s)  i_L (A/m²)
+      538.0  2.88368 4.046734e-10  420.123215
+      553.0  2.96408 4.046734e-10  431.836688
+      568.0  3.04448 4.046734e-10  443.550160
+      583.0  3.12488 4.046734e-10  455.263633
+      598.0  3.20528 4.046734e-10  466.977105
+      613.0  3.28568 4.046734e-10  478.690578
+      628.0  3.36608 4.046734e-10  490.404050
+      643.0  3.44648 4.046734e-10  502.117523
+      658.0  3.52688 4.046734e-10  513.830996
+      673.0  3.60728 4.046734e-10  525.544468
+      688.0  3.68768 4.046734e-10  537.257941
+      703.0  3.76808 4.046734e-10  548.971413
+
+
+Aspectos en los cuales el modelo aún puede optimizado. 
+•	Considerar efectos de convección natural o forzada
+•	Consideración de bajas [Fe+2]
+•	“Barrido o evaluación” en modo potenciostato, forzando el potencial y evaluando la respuesta de la densidad de corriente
