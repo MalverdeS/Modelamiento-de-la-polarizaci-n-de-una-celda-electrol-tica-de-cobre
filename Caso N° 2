@@ -1,1 +1,209 @@
+# MODELO DE POLARIZACIÓN ELECTROLÍTICA PARA NANOMATERIAL DE COBRE
+# Descripción:
+# Simula la curva de polarización (Ecelda vs i) para una celda electrolítica
+# considerando tres componentes de sobrepotencial:
+#   - Activación (Butler-Volmer)
+#   - Caída óhmica (electrolito + electrodos)
+#   - Concentración (difusión)
+# Incluye el ajuste termodinámico del potencial reversible con ΔS.
+# ============================================================
 
+import numpy as np   # para trabajar con biblioteca computacional-numérica de Python
+import matplotlib.pyplot as plt   # para trabajar con biblioteca de visualización
+import pandas as pd  # para trabajar con tablas de datos
+
+# ============================================================
+# 1. CONSTANTES UNIVERSALES
+# ============================================================
+F = 96485         # Constante de Faraday [C/mol]
+R = 8.314         # Constante de gases [J/mol·K]
+
+# ============================================================
+# 2. PARÁMETROS BASE Y SUPUESTOS
+# ============================================================
+# === Parámetros electroquímicos ===
+n = 2                   # número de electrones transferidos (Cu²⁺ + 2e⁻ → Cu)
+E0_ref = 0.34           # Potencial estándar (V)
+DeltaS = -20.0          # Entropía molar estándar aproximada [J/mol·K] (editable según referencia)
+T0 = 298.15             # Temperatura de referencia [K]
+alpha_c = 0.5           # Coeficiente de transferencia catódico
+i0 = 1e-3               # Corriente de intercambio [A/m²] (editable según referencia)
+
+# === Parámetros geométricos ===
+L = 0.02                # distancia entre electrodos [m] (editable según referencia)
+A_surf = 0.01           # área transversal efectiva [m²] (editable según referencia)
+t_cat = 0.005           # espesor cátodo [m]             (editable según referencia)
+t_an = 0.005            # espesor ánodo [m]              (editable según referencia)
+
+# === Propiedades eléctricas de electrodos ===   (Caso N° 2 de evaluación, típico EW: Ánodo Pb y Cátodo Inox. 316L) Referencias portal Engineercalculator
+rho0_cat = 7.4e-7      # Resistividad Inox 316L a 298K [Ω·m]
+rho0_an = 2.2e-7       # Resistividad Pb sin aleación a 298K [Ω·m]
+alpha_rho_cat = 0.00094  # Coeficiente de temperatura resistividad [1/K] Inox 316L
+alpha_rho_an = 0.0040    # Coeficiente de temperatura resistividad [1/K] Pb sin aleación
+
+# Nota breve de análisis Caso N° 2 respecto de Caso N° 1:
+  # La resistencia electrónica total (ánodo + cátodo) en el Caso N° 2 aumentaría, respecto del
+  # caso N° 1 el cual considera electrodos de un mismo material y tipo Cobre (cátodo madre)
+  # por tanto, se esperaría mayor caída óhmica, mayor sobrepotencial total y mayor voltaje de celda requerido. Sin embargo, se debe evaluar si es efecto marginal o no.
+
+# === Propiedades de difusión ===
+lambda_Cu = 53.6e-4     # Conductancia iónica molar (S·m²/mol)
+z_Cu = 2                # carga iónica del Cu²⁺
+delta = 1e-4            # capa difusional fija [m] (sin convección natural ni forzada)
+
+# ============================================================
+# 3. FUNCIONES AUXILIARES # definición de ecuaciones para cálculos de difusividad, corriente límite y otros.
+# ============================================================
+
+def D_from_lambda(lambda_i, z_i, T):
+    """Difusividad iónica a partir de conductancia iónica molar (λ_i)"""
+    return (lambda_i * R * T) / (z_i**2 * F**2) # ecuación indicada en apartado sobrepotencial por concentración
+
+def kappa_from_DC(D, C, z=z_Cu, T=298.15):
+    """Conductividad del electrolito por ecuación de Nernst-Einstein"""
+    return (F**2 / (R * T)) * (z**2 * D * C) # ecuación indicada en apartado caída óhmica; solo para especie de cobre
+
+def i_lim(D, C, delta):
+    """Corriente límite difusional"""
+    return n * F * D * C / delta # ecuación indicada en apartado sobrepotencial por concentración
+
+def E0_T(E0_ref, DeltaS, n, F, T, T0):
+    """Ajuste de potencial estándar por efecto térmico (ΔS)""" # ecuación indicada en apartado consideración potencial reversible
+    return E0_ref + (DeltaS / (n * F)) * (T - T0)
+
+def E_rev(E0_T, T, C_react, C_prod=1): # ecuación indicada en apartado potencial reversible, ajuste con Nerst a partir de el E0_T corregido por entropia
+    """Potencial reversible según Nernst (a partir de E0 ajustado con ΔS)"""
+    return E0_T - (R * T / (n * F)) * np.log(C_prod / C_react)
+
+def R_elec_total(T):
+    """Resistencia total de electrodos"""
+    R_cat = rho0_cat * (1 + alpha_rho_cat * (T - 298)) * t_cat / A_surf  # ecuación indicada en sección caída óhmica para resistencia electrodos
+    R_an  = rho0_an  * (1 + alpha_rho_an  * (T - 298)) * t_an / A_surf
+    return R_cat + R_an # como resistencia electrónica solo se considera la propia de los electrodos; para este caso la celda se considera sin "busbar" o barra colectora
+
+def eta_ohm(i, L, kappa, Relec):
+    """Sobrepotencial óhmico total"""
+    return i * (L / kappa + Relec) # ecuación indicada en sección caída óhmica para resistencia electrolito
+
+def eta_conc(i, iL, T):
+    """Sobrepotencial por concentración (control difusional).
+    Modificada para mostrar caída de potencial (régimen difusional) sin corte abrupto.
+    """
+    # Si la corriente se acerca o supera iL, el sobrepotencial crece fuertemente (caída en curva)
+    if i >= 0.9999 * iL:
+        i_eff = 0.9999 * iL  # evitar singularidad en log(0)
+    else:
+        i_eff = i
+
+    # Cálculo del sobrepotencial con término suavizado para que tienda a -∞ de forma controlada
+    eta = -(R * T / (n * F)) * np.log(1 - i_eff / iL + 1e-6)
+    return eta
+
+from scipy.optimize import fsolve
+
+def eta_act_BV_full(i, i0, T, alpha_a=0.5, alpha_c=0.5):
+    """Sobrepotencial de activación resolviendo la ecuación completa de Butler–Volmer"""
+
+    if i <= 0: # Evitar problemas en corrientes no físicas o negativas
+        return 0.0
+
+    if i > 1000 * i0: # Si la corriente es muy alta, usar aproximación de Tafel (rama catódica dominante)
+        return - (R * T / (alpha_c * n * F)) * np.log(i / i0)
+
+    # Estimación inicial (Tafel) para mejorar convergencia numérica. Recomendación por parte de Ia debido a que código original indicaba error o linealización por no convergencia de B-V
+    eta_guess = - (R * T / (alpha_c * n * F)) * np.log(max(i / i0, 1e-9)) #valor mínimo para evitar problema de cálculo
+
+    def func(eta): # Ecuación de Butler–Volmer completa
+        term_an = np.exp(alpha_a * n * F * eta / (R * T))
+        term_cat = np.exp(-alpha_c * n * F * eta / (R * T))
+        return i0 * (term_an - term_cat) - i
+
+    # Resolver η a partir de la estimación inicial
+    eta_solution = fsolve(func, eta_guess)[0]
+    return eta_solution
+
+# ==========================================================
+# 4. INTERACCIÓN CON EL USUARIO
+# ==========================================================
+
+print("=== MODELO DE POLARIZACIÓN ELECTROLÍTICA ===")
+modo = input("¿Desea evaluar efecto de 'Temperatura' (T) o 'Concentración' (C)? [T/C]: ").strip().upper() # primero pregunto a usuario que desea evaluar. Efecto de Concentración o Temperatura
+
+if modo == "T": # condicionante, si el usuario responde a evaluación de temperatura, entonces ejecuto este código solicitando rangos de trabajo
+    T_min = float(input("Temperatura mínima [K]: ")) # para trabajar con numero decimales o no enteros.
+    T_max = float(input("Temperatura máxima [K]: "))
+    T_step = float(input("Paso de temperatura [K]: "))
+    T_list = np.arange(T_min, T_max + T_step, T_step) # para generar matriz según el paso indicado por el usuario
+    C_fixed = float(input("Concentración fija de Cu²⁺ [mol/m³]: "))
+
+elif modo == "C": # condicionante, si el usuario responde a evaluación de concentración.
+    C_min = float(input("Concentración mínima [mol/m³]: "))
+    C_max = float(input("Concentración máxima [mol/m³]: "))
+    C_step = float(input("Paso de concentración [mol/m³]: "))
+    C_list = np.arange(C_min, C_max + C_step, C_step)
+    T_fixed = float(input("Temperatura fija [K]: "))
+else: # si el valor no es correcto, raise indica texto asociado a error y se debe reinicia sección del código
+    raise ValueError("Debe ingresar 'T' o 'C'.")
+
+i_min = float(input("Densidad de corriente mínima [A/m²]: ")) # mismo criterio para densidad de corriente; un valor mínimo y máximo, considerando un paso para evaluar en el rango.
+i_max = float(input("Densidad de corriente máxima [A/m²]: "))
+i_step = float(input("Paso de corriente [A/m²]: "))
+i_values = np.arange(i_min, i_max + i_step, i_step)
+
+# ============================================================
+# 5. CÁLCULOS Y SIMULACIÓN
+# ============================================================
+
+results = [] # para almacenar datos a través de iteración del código
+
+if modo == "T": # programa trabajando en modo evaluación de temperatura
+    for T in T_list: # ciclo de iteración de cada tempertura respecto del rango de estudio
+        D = D_from_lambda(lambda_Cu, z_Cu, T) #difusividad en función de conductancia
+        kappa = kappa_from_DC(D, C_fixed, z=z_Cu, T=T)
+        iL = i_lim(D, C_fixed, delta)
+        Relec = R_elec_total(T) # resistencia electrónica
+        E0_Tval = E0_T(E0_ref, DeltaS, n, F, T, T0)
+        Erev = E_rev(E0_Tval, T, C_fixed)
+
+        i_eval = i_values.copy() # no delimitamos el rango de estudio aplicación para densidades de corriente hasta corriente límite
+        eta_act = np.array([eta_act_BV_full(i, i0, T, alpha_c, alpha_c) for i in i_eval])
+        eta_ohm_ = np.array([eta_ohm(i, L, kappa, Relec) for i in i_eval]) #resistencia óhmica considera electrolito y Relectrónica
+        eta_conc_ = np.array([eta_conc(i, iL, T) for i in i_eval])
+        Ecelda = Erev + np.abs(eta_act) + np.abs(eta_ohm_) + np.abs(eta_conc_)
+
+        results.append({"T (K)": T, "κ (S/m)": kappa, "D (m²/s)": D, "i_L (A/m²)": iL})
+        plt.plot(i_eval, Ecelda, label=f"T={T:.0f} K")
+
+elif modo == "C": #mismo criterio que temperatura, sin embargo, en esta oportunidad para cálculos en función de la concetración de la especie
+    for C in C_list:
+        D = D_from_lambda(lambda_Cu, z_Cu, T_fixed)
+        kappa = kappa_from_DC(D, C, z=z_Cu, T=T_fixed)
+        iL = i_lim(D, C, delta)
+        Relec = R_elec_total(T_fixed)
+        E0_Tval = E0_T(E0_ref, DeltaS, n, F, T_fixed, T0)
+        Erev = E_rev(E0_Tval, T_fixed, C)
+
+        i_eval = i_values.copy()
+        eta_act = np.array([eta_act_BV_full(i, i0, T_fixed, alpha_c, alpha_c) for i in i_eval])
+        eta_ohm_ = np.array([eta_ohm(i, L, kappa, Relec) for i in i_eval])
+        eta_conc_ = np.array([eta_conc(i, iL, T_fixed) for i in i_eval])
+        Ecelda = Erev + np.abs(eta_act) + np.abs(eta_ohm_) + np.abs(eta_conc_)
+
+        results.append({"C (mol/m³)": C, "κ (S/m)": kappa, "D (m²/s)": D, "i_L (A/m²)": iL})
+        plt.plot(i_eval, Ecelda, label=f"[Cu²⁺]={C:.0f} mol/m³")
+
+# ============================================================
+# 6. RESULTADOS Y GRÁFICO
+# ============================================================
+
+plt.xlabel("Densidad de corriente (A/m²)") # para indicar nombre del eje x
+plt.ylabel("Voltaje de celda (V)") # para indicar nombre dle eje y
+plt.title("Curvas de polarización simuladas") # para indicar nombre de gráfica
+plt.legend() # se incropora leyenda en gráfica
+plt.grid(True) # se genera gráfica con cuadrícula
+plt.show() # para desplegar el gráfico
+
+# Mostrar tabla de resultados
+df = pd.DataFrame(results) # los resultados simulados se muestran en forma de matriz
+print("\n=== RESUMEN DE PARÁMETROS CALCULADOS ===")
+print(df.to_string(index=False)) # filas sin numeración
